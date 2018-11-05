@@ -1,0 +1,21 @@
+axon:
+  serializer:
+    general: jackson
+  eventhandling:
+    processors:
+      "[MyProcessor]":
+        source: kafkaMessageSource
+        mode: TRACKING
+  kafka:
+    clientid: myconsumer
+    defaulttopic: mydefaulttopic
+    consumer:
+      group-id: boot
+      bootstrapservers:
+        - kafka:9092
+
+logging:
+  level:
+    ROOT: INFO
+
+#spring.data.solr.zk-host: localhost:8983

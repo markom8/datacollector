@@ -1,2 +1,5 @@
-rootProject.name = 'datacollector'
+rootProject.name = 'collector'
+include 'data-api'
+include 'data-events'
+include 'data-statistics'
 

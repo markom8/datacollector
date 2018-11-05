@@ -1,0 +1,143 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: "zookeeper"
+    hostname: "zookeeper"
+    expose:
+      - 2181
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - jute.maxbuffer:536870912
+#    networks:
+#      - spring-network
+  kafka:
+    image: wurstmeister/kafka
+    depends_on:
+      - zookeeper
+    expose:
+      - 9092
+    ports:
+      - "9092:9092"
+#    networks:
+#      - spring-network
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+#  elasticsearch:
+#   image: elasticsearch:5.6.12
+#   container_name: esearch
+##   command: "elasticsearch -Des.cluster.name=web_app_demo -Des.node.name=demo_node "
+#   environment:
+#    - xpack.security.enabled=true
+#    - transport.host=0.0.0.0
+#    - transport.bind_host=0.0.0.0
+#    - transport.tcp.port=9300
+#    - discovery.type=single-node
+#    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    - http.host=0.0.0.0
+#    - client.transport.sniff=true
+#    - cluster.name=web_app_demo
+#    - node.name=demo_node
+#    - network.host=0.0.0.0
+#    - network.bind_host=0.0.0.0
+##    - client.transport.ignore_cluster_name:true
+#    - "discovery.zen.minimum_master_nodes=1"
+#    - "discovery.zen.ping.unicast.hosts=tasks.esearch"
+
+#   networks:
+#    - spring-network
+#   expose:
+#    - 9300
+#    - 9200
+#   ports:
+#    - 127.0.0.1:9200:9200
+#    - 127.0.0.1:9300:9300
+#  elasticsearch:
+#    image: elasticsearch:5.4.2
+#    hostname: es2
+#    container_name: esearch
+#    user: elasticsearch
+#    ports:
+#    - 9200:9200
+#    - 9300:9300/udp
+#    environment:
+#      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+#      http.host: 0.0.0.0
+#      transport.host: 0.0.0.0
+#      discovery.zen.minimum_master_nodes: 2
+#      cluster.name: esearch
+#      node.name: demo_node
+#      node.master: "true"
+#      node.data: "true"
+#      discovery.zen.ping_timeout: 10s
+#      network.host: 0.0.0.0
+#      network.bind_host: 0.0.0.0
+#      network.publish_host: 0.0.0.0
+#      transport.tcp.port: 9300
+#
+#    command: /usr/share/elasticsearch/bin/elasticsearch
+#  elasticsearch:
+#   image: elasticsearch:5.6.5
+#        # volumes:
+#        #     - ~/volumes/jhipster/TwentyOnePoints/elasticsearch/:/usr/share/elasticsearch/data/
+#   ports:
+#    - 9200:9200
+#    - 9300:9300
+#   command: -Enetwork.host=0.0.0.0 -Ediscovery.type=single-node -Etransport.host=0.0.0.0 -Eclient.transport.sniff=true -Ediscovery.zen.minimum_master_nodes=1
+#   depends_on:
+#     - zookeeper
+#   environment:
+#    - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+
+  solr1:
+    image: solr:7.1
+    cpu_shares: 100
+    ports:
+      - "8983:8983"
+    volumes:
+      - solrdata1:/opt/solr/server/solr
+    container_name: solr1
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - core1
+    links:
+      - zookeeper:ZK
+    command: /opt/solr/bin/solr start -f -z zookeeper:2181
+    depends_on:
+      - zookeeper
+
+
+  data-statistics:
+      image: markom8/data-statistics
+      ports:
+        - 8081:8080
+      environment:
+        - spring.data.solr.zk-host=solr1:8983
+        - spring.cloud.stream.kafka.binder.autoCreateTopics=false
+#        - spring.data.elasticsearch.cluster-name=solr1
+#        - spring.data.elasticsearch.cluster-nodes=solr1:8983
+#      networks:
+#        - spring-network
+      depends_on:
+        - kafka
+        - solr1
+
+  data-api:
+      image: markom8/data-api
+      ports:
+        - 8080:8080
+#      networks:
+#        - spring-network
+      depends_on:
+        - kafka
+        - data-statistics
+#networks:
+#    spring-network:
+#        driver: bridge
+volumes:
+  solrdata1:

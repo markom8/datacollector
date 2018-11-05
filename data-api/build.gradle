@@ -1,0 +1,26 @@
+apply plugin: 'com.palantir.docker'
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    compile group: 'org.axonframework', name: 'axon-kafka', version: '3.3.2'
+    compile group: 'org.axonframework', name: 'axon-spring-boot-starter', version: '3.3.3'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.0.5.RELEASE'
+    compile group: 'com.h2database', name: 'h2', version: '1.4.197'
+    compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.2.1'
+    compile group: 'com.querydsl', name: 'querydsl-apt', version: '4.2.1'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.0.5.RELEASE'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.3.7.Final'
+//    compile group: 'org.flywaydb', name: 'flyway-core', version: '5.2.0'
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.kafka:spring-kafka')
+    compile project(":data-events")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+docker {
+    dependsOn build
+    println(bootJar.baseName)
+    name "${project.group}/${bootJar.baseName}"
+    files bootJar.archivePath
+    buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
+}

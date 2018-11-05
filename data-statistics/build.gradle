@@ -1,0 +1,28 @@
+apply plugin: 'org.springframework.boot'
+apply plugin: 'com.palantir.docker'
+
+dependencies {
+    compile group: 'org.axonframework', name: 'axon-kafka', version: '3.3.2'
+    compile group: 'org.axonframework', name: 'axon-spring-boot-starter', version: '3.3.3'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.0.4.RELEASE'
+    compile('org.springframework.boot:spring-boot-starter')
+//    compile('org.springframework.data:spring-data-elasticsearch:3.0.11.RELEASE')
+//    compile group: 'org.elasticsearch', name: 'elasticsearch', version: '5.6.5'
+//    compile group: 'org.elasticsearch.plugin', name: 'transport-netty4-client', version: '5.6.5'
+//    compile group: 'org.elasticsearch.client', name: 'transport', version: '5.6.5' //5.6.12
+//    compile group: 'org.projectlombok', name: 'lombok', version: '1.12.6'
+//    compile group: 'net.java.dev.jna', name: 'jna', version: '4.3.0'
+    compile('org.springframework.boot:spring-boot-starter-data-solr')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.kafka:spring-kafka')
+    compile project(":data-events")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+docker {
+    dependsOn build
+    println(bootJar.baseName)
+    name "${project.group}/${bootJar.baseName}"
+    files bootJar.archivePath
+    buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
+}
