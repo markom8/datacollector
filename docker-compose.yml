@@ -9,8 +9,10 @@ services:
     ports:
       - "2181:2181"
     environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-      - jute.maxbuffer:536870912
+#      - ZOO_MAX_CLIENT_CNXNS=60
+#      - ALLOW_ANONYMOUS_LOGIN=yes
+      - SOLR_OPTS=-Djute.maxbuffer:536870912
+#      - maxClientCnxns:60
 #    networks:
 #      - spring-network
   kafka:
@@ -27,6 +29,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+
 #  elasticsearch:
 #   image: elasticsearch:5.6.12
 #   container_name: esearch
@@ -94,20 +97,21 @@ services:
 #    - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
 
   solr1:
-    image: solr:7.1
+    image: solr:latest
     cpu_shares: 100
     ports:
       - "8983:8983"
     volumes:
       - solrdata1:/opt/solr/server/solr
     container_name: solr1
-    entrypoint:
-      - docker-entrypoint.sh
-      - solr-precreate
-      - core1
+#    entrypoint:
+#      - docker-entrypoint.sh
+#      - solr-precreate
     links:
       - zookeeper:ZK
     command: /opt/solr/bin/solr start -f -z zookeeper:2181
+    environment:
+      - SOLR_OPTS=-Djute.maxbuffer:536870912
     depends_on:
       - zookeeper
 
@@ -115,7 +119,7 @@ services:
   data-statistics:
       image: markom8/data-statistics
       ports:
-        - 8081:8080
+        - 8085:8080
       environment:
         - spring.data.solr.zk-host=solr1:8983
         - spring.cloud.stream.kafka.binder.autoCreateTopics=false
@@ -123,6 +127,8 @@ services:
 #        - spring.data.elasticsearch.cluster-nodes=solr1:8983
 #      networks:
 #        - spring-network
+      links:
+        - solr1
       depends_on:
         - kafka
         - solr1
