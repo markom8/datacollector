@@ -40,19 +40,19 @@ public class DataCollectorFacadeImpl implements DataCollectorFacade {
             throw new DataCollectorRecordNotCompleateException("Datacollector request body not complete!");
         }
         if (ipBlacklistService.findIpBlacklistByIp(Long.parseLong(remoteAddr.replaceAll("\\D+",""))).isPresent()) {
-//            sendEventDataCollectorRequest(remoteAddr, userAgent, dataCollectorDTO, false);
+            sendEventDataCollectorRequest(remoteAddr, userAgent, dataCollectorDTO, false);
             throw new IpBlacklistedException("Ip is blacklisted!");
         }
         if (uaBlacklistService.findUaBlacklistByUa(userAgent).isPresent()) {
-//            sendEventDataCollectorRequest(remoteAddr, userAgent, dataCollectorDTO, false);
+            sendEventDataCollectorRequest(remoteAddr, userAgent, dataCollectorDTO, false);
             throw new UaBlacklistedException("User agent is blacklisted!");
         }
         if (!customerService.findCustomerById(dataCollectorDTO.getCustomerID()).isPresent()) {
-//            sendEventDataCollectorRequest(remoteAddr, userAgent, dataCollectorDTO, false);
+            sendEventDataCollectorRequest(remoteAddr, userAgent, dataCollectorDTO, false);
             throw new CustomerIdNotFoundException("Customer not found!");
         }else{
             if(customerService.findCustomerById(dataCollectorDTO.getCustomerID()).get().getCustomerActive().equals(0)){
-//                sendEventDataCollectorRequest(remoteAddr, userAgent, dataCollectorDTO, false);
+                sendEventDataCollectorRequest(remoteAddr, userAgent, dataCollectorDTO, false);
                 throw new CustomerDisabledException("Customer is disabled exception!");
             }
         }

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 /*
  If ProcessingGroup is not set, then the package name is used.
@@ -41,7 +43,7 @@ public class MyEventEventHandler {
   public void handleMyEvent(MyEvent myEvent){
     LOGGER.info("got the event {}", myEvent);
     DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS Z");
-    DataEntry dataEntry = new DataEntry( "-" + myEvent.getRemoteAddr(), myEvent.getDataCollectorDTO().getCustomerID(), myEvent.getDataCollectorDTO().getTagID(), myEvent.getDataCollectorDTO().getUserID(), myEvent.getDataCollectorDTO().getRemoteIP(), myEvent.getDataCollectorDTO().getTimestamp(), myEvent.getRemoteAddr(), myEvent.getUserAgent(), myEvent.isValidRequest());
+    DataEntry dataEntry = new DataEntry(myEvent.getDataCollectorDTO().getCustomerID(), myEvent.getDataCollectorDTO().getTagID(), myEvent.getDataCollectorDTO().getUserID(), myEvent.getDataCollectorDTO().getRemoteIP(), myEvent.getDataCollectorDTO().getTimestamp(), myEvent.getRemoteAddr(), myEvent.getUserAgent(), myEvent.isValidRequest(), new Date());
     dataEntryRepository.save(dataEntry);
   }
 

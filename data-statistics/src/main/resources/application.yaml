@@ -18,4 +18,4 @@ logging:
   level:
     ROOT: INFO
 
-#spring.data.solr.zk-host: localhost:8983
+#
